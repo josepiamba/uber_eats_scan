@@ -36,7 +36,7 @@ async function scraping() {
             await new Promise((resolve, reject) => {
 
                 let totalHeight = 0;
-                var distance = 500;                
+                let distance = 500;
 
                 var timer = setInterval(async () => {
 
@@ -57,37 +57,18 @@ async function scraping() {
 
         });
 
-        // await page.evaluate(async () => {
-
-        //     const selectors = Array.from(document.querySelectorAll('div > img'));
-
-        //     await Promise.all(selectors.map(img => {
-
-        //         if (img.complete) return;
-
-        //         return new Promise((resolve, reject) => {
-
-        //             img.addEventListener('load', resolve);
-        //             img.addEventListener('error', reject);
-
-        //         });
-
-        //     }));
-
-        // })
-
         console.log('e');
 
         var items = await page.evaluate(() => {
 
-            var shop = document.querySelector('h1').innerText.trim();
+            let shop = document.querySelector('h1').innerText.trim();
 
-            var date = new Date();
+            let date = new Date();
             date = date.toString();
 
-            var dataOfItems = [];
+            let dataOfItems = [];
 
-            var categories = document.querySelectorAll('main > div:nth-child(3) > ul');
+            let categories = document.querySelectorAll('main > div:nth-child(3) > ul');
 
             categories = categories[0].children;
 
@@ -97,25 +78,25 @@ async function scraping() {
 
                 let category = categories[i].querySelector('h2').innerText.trim();
 
-                var cards = categories[i].querySelectorAll('ul > li');
+                let cards = categories[i].querySelectorAll('ul > li');
 
                 for (let j = 0; j < cards.length; j++) {
-
+                    
                     absolutePosition++;
 
                     if (typeof cards[j] == 'object') {
 
-                        var content = cards[j].querySelector('div > div >div > div > div');
+                        let content = cards[j].querySelector('div > div >div > div > div');
 
-                        var image = null;
+                        let image = null;
 
-                        var currency = null;
+                        let currency = null;
 
-                        if (cards[j].querySelector('div > img') != null) image = cards[j].querySelector('div > img').src
+                        if (cards[j].querySelector('div > img') != null) image = cards[j].querySelector('div > img').src;
 
                         if (content.childElementCount > 1) {
 
-                            var price = cards[j].querySelector('div > div >div > div > div > div:nth-child(3)').innerText.trim();
+                            let price = cards[j].querySelector('div > div >div > div > div > div:nth-child(3)').innerText.trim();
 
                             if (price.match(String.fromCharCode(160))) {
 
@@ -124,10 +105,7 @@ async function scraping() {
                                 for (let k = 0; k < componentOfPrice.length; k++) {
 
                                     if (isNaN(parseInt(componentOfPrice[k]))) currency = componentOfPrice[k];
-                                    else {
-                                        // console.log(componentOfPrice[k].replace(',', ''));
-                                        price = parseInt(componentOfPrice[k].replace(',', ''));
-                                    }
+                                    else price = parseInt(componentOfPrice[k].replace(',', ''));
 
                                 }
 
@@ -143,24 +121,20 @@ async function scraping() {
                                 position: j + 1,
                                 absolutePosition,
                                 date,
-                                image
+                                image,
                             });
 
                         } else {
 
-                            var price = cards[j].querySelector('div > div >div > div > div > div:nth-child(1)').innerText.trim();
+                            let price = cards[j].querySelector('div > div >div > div > div > div:nth-child(1)').innerText.trim();
 
                             if (price.match(String.fromCharCode(160))) {
-
                                 componentOfPrice = price.split(String.fromCharCode(160));
 
                                 for (let k = 0; k < componentOfPrice.length; k++) {
 
                                     if (isNaN(parseInt(componentOfPrice[k]))) currency = componentOfPrice[k];
-                                    else {
-                                        // console.log(componentOfPrice[k].replace('.', ''));
-                                        price = parseInt(componentOfPrice[k].replace(',', ''));
-                                    }
+                                    else price = parseInt(componentOfPrice[k].replace(',', ''));
 
                                 }
 
@@ -176,7 +150,7 @@ async function scraping() {
                                 position: j + 1,
                                 absolutePosition,
                                 date,
-                                image
+                                image,
                             });
 
                         }
@@ -184,35 +158,35 @@ async function scraping() {
                     }
 
                 }
-                
+
             }
 
             return dataOfItems;
-
         });
 
         console.log('f');
-
-        // console.log(items);
 
         await browser.close();
 
         const csv = await converter.json2csvAsync(items, {
             delimiter: {
-                // wrap  : '\'',
                 field: ';',
                 array: '|',
-                eol: '\n'
+                eol: '\n',
             },
-            excelBOM: true
+            excelBOM: true,
         });
 
-        fs.writeFileSync(`${process.cwd()}/public/scans/${uuidV4()}.csv`, csv);
+        let directoryOfResult = `${process.cwd()}/public/scans/${uuidV4()}.csv`;
+
+        fs.writeFileSync(directoryOfResult, csv);
+
+        return directoryOfResult;
 
     } catch (e) {
 
         console.log(e);
-
+        
     }
 }
 
