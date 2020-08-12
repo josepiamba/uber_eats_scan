@@ -8,7 +8,8 @@ const uuidV4 = uuid.v4;
 async function scraping() {
 
     console.log('a');
-    var browser = undefined;
+
+    let browser = undefined;
 
     try {
 
@@ -186,7 +187,7 @@ async function scraping() {
     } catch (e) {
 
         console.log(e);
-        
+
     }
 }
 

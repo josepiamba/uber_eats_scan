@@ -4,31 +4,39 @@ const puppeteer = require('puppeteer');
 const uuid = require('uuid');
 const uuidV4 = uuid.v4;
 
-module.exports = scan = async () => {
+module.exports = scan = async (urlForScan) => {
 
-    var browser = undefined;
+    console.log('a');
+
+    let browser = undefined;
 
     try {
 
         browser = await puppeteer.launch({
             ignoreHTTPSErrors: true,
-            headless: false,
+            headless: true,
             args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-extensions', '--lang=es'],
         });
 
+        console.log('b');
+
         let page = await browser.newPage();
 
-        await page.goto('https://www.ubereats.com/cr-en/san-jose/food-delivery/delimart-guachipelin/bbLG4X08TfCBQtvis-zOWw', {
+        console.log('c');
+
+        await page.goto(urlForScan, {
             waitUntil: 'domcontentloaded',
             timeout: 0,
         });
+
+        console.log('d');
 
         await page.evaluate(async () => {
 
             await new Promise((resolve, reject) => {
 
                 let totalHeight = 0;
-                var distance = 500;                
+                let distance = 500;
 
                 var timer = setInterval(async () => {
 
@@ -49,58 +57,100 @@ module.exports = scan = async () => {
 
         });
 
+        console.log('e');
+
         var items = await page.evaluate(() => {
 
-            var shop = document.querySelector('h1').innerText;
+            let shop = document.querySelector('h1').innerText.trim();
 
-            var date = new Date();
+            let date = new Date();
             date = date.toString();
 
-            var dataOfItems = [];
+            let dataOfItems = [];
 
-            var categories = document.querySelectorAll('main > div:nth-child(3) > ul:nth-child(5) > li');
+            let categories = document.querySelectorAll('main > div:nth-child(3) > ul');
+
+            categories = categories[0].children;
 
             let absolutePosition = 0;
 
             for (let i = 0; i < categories.length; i++) {
 
-                let category = categories[i].querySelector('h2').innerText;
-                var cards = categories[i].querySelectorAll('ul > li');
+                let category = categories[i].querySelector('h2').innerText.trim();
+
+                let cards = categories[i].querySelectorAll('ul > li');
 
                 for (let j = 0; j < cards.length; j++) {
-
+                    
                     absolutePosition++;
 
                     if (typeof cards[j] == 'object') {
 
-                        var content = cards[j].querySelector('div > div >div > div > div');
+                        let content = cards[j].querySelector('div > div >div > div > div');
+
+                        let image = null;
+
+                        let currency = null;
+
+                        if (cards[j].querySelector('div > img') != null) image = cards[j].querySelector('div > img').src;
 
                         if (content.childElementCount > 1) {
 
+                            let price = cards[j].querySelector('div > div >div > div > div > div:nth-child(3)').innerText.trim();
+
+                            if (price.match(String.fromCharCode(160))) {
+
+                                componentOfPrice = price.split(String.fromCharCode(160));
+
+                                for (let k = 0; k < componentOfPrice.length; k++) {
+
+                                    if (isNaN(parseInt(componentOfPrice[k]))) currency = componentOfPrice[k];
+                                    else price = parseInt(componentOfPrice[k].replace(',', ''));
+
+                                }
+
+                            }
+
                             dataOfItems.push({
                                 shop,
-                                product: cards[j].querySelector('h4').innerText,
-                                status: cards[j].querySelector('div > div >div > div > div > div:nth-child(1)').innerText,
-                                price: cards[j].querySelector('div > div >div > div > div > div:nth-child(3)').innerText,
+                                product: cards[j].querySelector('h4').innerText.trim(),
+                                status: cards[j].querySelector('div > div >div > div > div > div:nth-child(1)').innerText.trim(),
+                                price,
+                                currency,
                                 category,
                                 position: j + 1,
                                 absolutePosition,
                                 date,
-                                image: cards[j].querySelector('div > div > div > div img') != null ? cards[j].querySelector('img').src : null
+                                image,
                             });
 
                         } else {
 
+                            let price = cards[j].querySelector('div > div >div > div > div > div:nth-child(1)').innerText.trim();
+
+                            if (price.match(String.fromCharCode(160))) {
+                                componentOfPrice = price.split(String.fromCharCode(160));
+
+                                for (let k = 0; k < componentOfPrice.length; k++) {
+
+                                    if (isNaN(parseInt(componentOfPrice[k]))) currency = componentOfPrice[k];
+                                    else price = parseInt(componentOfPrice[k].replace(',', ''));
+
+                                }
+
+                            }
+
                             dataOfItems.push({
                                 shop,
-                                product: cards[j].querySelector('h4').innerText,
+                                product: cards[j].querySelector('h4').innerText.trim(),
                                 status: 'Avalaible',
-                                price: cards[j].querySelector('div > div >div > div > div > div:nth-child(1)').innerText,
+                                price,
+                                currency,
                                 category,
                                 position: j + 1,
                                 absolutePosition,
                                 date,
-                                image: cards[j].querySelector('div > div > div > div img') != null ? cards[j].querySelector('img').src : null
+                                image,
                             });
 
                         }
@@ -108,11 +158,11 @@ module.exports = scan = async () => {
                     }
 
                 }
-                
+
             }
 
             return dataOfItems;
-
+            
         });
 
         console.log('f');
@@ -123,14 +173,16 @@ module.exports = scan = async () => {
             delimiter: {
                 field: ';',
                 array: '|',
-                eol: '\n'
+                eol: '\n',
             },
-            excelBOM: true
+            excelBOM: true,
         });
 
-        fs.writeFileSync(`${process.cwd()}/public/scans/${uuidV4()}.csv`, csv);
+        let scanId = uuidV4();
 
-        return true;
+        fs.writeFileSync(`${process.cwd()}/public/scans/${scanId}.csv`, csv);
+
+        return `${process.env.URL}/scans/download/${scanId}`;
 
     } catch (e) {
 
