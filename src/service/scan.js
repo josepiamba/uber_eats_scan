@@ -4,9 +4,10 @@ const puppeteer = require('puppeteer');
 const uuid = require('uuid');
 const uuidV4 = uuid.v4;
 
-module.exports = scan = async (urlForScan) => {
+module.exports = scan = async (socket, urlForScan) => {
 
-    console.log('a');
+    console.log('the_scan_has_started');
+    socket.emit('statusOfScan', 'the_scan_has_started');
 
     let browser = undefined;
 
@@ -18,25 +19,25 @@ module.exports = scan = async (urlForScan) => {
             args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-extensions', '--lang=es'],
         });
 
-        console.log('b');
+        console.log('the_browser_has_been_launched');
+        socket.emit('statusOfScan', 'the_browser_has_been_launched');
 
         let page = await browser.newPage();
-
-        console.log('c');
 
         await page.goto(urlForScan, {
             waitUntil: 'domcontentloaded',
             timeout: 0,
         });
 
-        console.log('d');
+        console.log('the_scan_has_reached_the_destination_url');
+        socket.emit('statusOfScan', 'the_scan_has_reached_the_destination_url');
 
         await page.evaluate(async () => {
 
             await new Promise((resolve, reject) => {
 
                 let totalHeight = 0;
-                let distance = 500;
+                let distance = 750;
 
                 var timer = setInterval(async () => {
 
@@ -51,13 +52,14 @@ module.exports = scan = async (urlForScan) => {
 
                     }
 
-                }, 1000);
+                }, 750);
 
             });
 
         });
 
-        console.log('e');
+        console.log('the_scan_has_recovered_all_the_elements');
+        socket.emit('statusOfScan', 'the_scan_has_recovered_all_the_elements');
 
         var items = await page.evaluate(() => {
 
@@ -165,7 +167,8 @@ module.exports = scan = async (urlForScan) => {
             
         });
 
-        console.log('f');
+        console.log('the_scan_has_finished');
+        socket.emit('statusOfScan', 'the_scan_has_finished');
 
         await browser.close();
 
@@ -180,9 +183,9 @@ module.exports = scan = async (urlForScan) => {
 
         let scanId = uuidV4();
 
-        fs.writeFileSync(`${process.cwd()}/public/scans/${scanId}.csv`, csv);
+        fs.writeFileSync(`${process.cwd()}/public/scans/UberEatsScan-${scanId}.csv`, csv);
 
-        return `${process.env.URL}/scans/download/${scanId}`;
+        return `${process.env.URL}scans/download/${scanId}`;
 
     } catch (e) {
 

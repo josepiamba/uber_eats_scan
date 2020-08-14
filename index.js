@@ -36,7 +36,7 @@ io.on('connection', (socket) => {
 
         console.log('Url receiver', url);
 
-        let resultOfScan = await scan(url);
+        let resultOfScan = await scan(socket, url);
 
         if (resultOfScan) {
 
@@ -47,8 +47,6 @@ io.on('connection', (socket) => {
             socket.emit('errorInScan', 'an_unexpected_error_has_arisen_try_later');
 
         }
-
-        
 
     });
 

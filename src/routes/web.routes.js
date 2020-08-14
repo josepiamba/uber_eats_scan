@@ -13,9 +13,9 @@ router.get('/scans/download/:scanId', (req, res) => {
 
     let { scanId } = req.params;
 
-    if (fs.existsSync(`${process.cwd()}/public/scans/${scanId}.csv`)) {
+    if (fs.existsSync(`${process.cwd()}/public/scans/UberEatsScan-${scanId}.csv`)) {
 
-        let scan = fs.readFileSync(`${process.cwd()}/public/scans/${scanId}.csv`);
+        let scan = fs.readFileSync(`${process.cwd()}/public/scans/UberEatsScan-${scanId}.csv`);
         
         res.setHeader('Content-Type', 'application/octet-stream');
         
@@ -27,7 +27,7 @@ router.get('/scans/download/:scanId', (req, res) => {
 
     } else {
 
-        res.json('The requested scan was not found').status(404);
+        res.json('the_requested_scan_was_not_found').status(404);
 
     }
 
