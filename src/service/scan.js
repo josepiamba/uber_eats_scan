@@ -16,7 +16,10 @@ module.exports = scan = async (socket, urlForScan) => {
         browser = await puppeteer.launch({
             ignoreHTTPSErrors: true,
             headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-extensions', '--lang=es'],
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+            ],
         });
 
         console.log('the_browser_has_been_launched');
