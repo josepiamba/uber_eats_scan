@@ -173,6 +173,8 @@ module.exports = scan = async (socket, urlForScan) => {
         console.log('the_scan_has_finished');
         socket.emit('statusOfScan', 'the_scan_has_finished');
 
+        console.log(items);
+
         await browser.close();
 
         const csv = await converter.json2csvAsync(items, {
@@ -187,6 +189,8 @@ module.exports = scan = async (socket, urlForScan) => {
         let scanId = uuidV4();
 
         fs.writeFileSync(`${process.cwd()}/public/scans/UberEatsScan-${scanId}.csv`, csv);
+
+        console.log(`${process.env.URL}scans/download/${scanId}`);
 
         return `${process.env.URL}scans/download/${scanId}`;
 
