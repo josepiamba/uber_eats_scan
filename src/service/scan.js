@@ -190,8 +190,6 @@ module.exports = scan = async (socket, urlForScan) => {
 
         fs.writeFileSync(`${process.cwd()}/public/scans/UberEatsScan-${scanId}.csv`, csv);
 
-        console.log(`${process.env.URL}scans/download/${scanId}`);
-
         return `${process.env.URL}scans/download/${scanId}`;
 
     } catch (e) {
