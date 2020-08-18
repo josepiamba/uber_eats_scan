@@ -189,6 +189,7 @@ module.exports = scan = async (socket, urlForScan) => {
 
     } catch (e) {
 
+        socket.emit('errorInScan', e);
         return false;
 
     }
