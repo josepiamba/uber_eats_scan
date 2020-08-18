@@ -19,7 +19,7 @@ router.get('/scans/download/:scanId', (req, res) => {
         
         res.setHeader('Content-Type', 'application/octet-stream');
         
-        res.setHeader('Content-disposition', `attachment;filename=${scanId}.csv`);
+        res.setHeader('Content-disposition', `attachment;filename=UberEatsScan-${scanId}.csv`);
         
         res.write(scan);
 
