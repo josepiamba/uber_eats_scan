@@ -22,7 +22,7 @@ app.use(mainRouter);
 
 const server = app.listen(process.env.PORT, function () {
 
-    console.log(`http://localhost:${process.env.PORT}`);
+    console.log(`https://uber-eat-scan.herokuapp.com:${process.env.PORT}`);
 
 });
 
