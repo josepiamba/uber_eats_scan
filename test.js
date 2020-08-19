@@ -11,6 +11,8 @@ async function scraping() {
 
     let browser = undefined;
 
+    let url = 'https://www.ubereatsa.com/cr-en/san-jose/food-delivery/delimart-guachipelin/bbLG4X08TfCBQtvis-zOWw';
+
     try {
 
         browser = await puppeteer.launch({
@@ -25,7 +27,7 @@ async function scraping() {
 
         console.log('c');
 
-        await page.goto('https://www.ubereats.com/cr-en/san-jose/food-delivery/delimart-guachipelin/bbLG4X08TfCBQtvis-zOWw', {
+        await page.goto(url, {
             waitUntil: 'domcontentloaded',
             timeout: 0,
         });

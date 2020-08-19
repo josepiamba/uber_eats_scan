@@ -22,7 +22,7 @@ app.use(mainRouter);
 
 const server = app.listen(process.env.PORT, function () {
 
-    console.log(`https://uber-eat-scan.herokuapp.com:${process.env.PORT}`);
+    console.log(`URL: ${process.env.URL}`, `PORT: ${process.env.PORT}`);
 
 });
 
@@ -38,15 +38,7 @@ io.on('connection', (socket) => {
 
         let resultOfScan = await scan(socket, url);
 
-        if (resultOfScan) {
-
-            socket.emit('resultOfScan', resultOfScan);
-
-        } else {
-
-            socket.emit('errorInScan', 'an_unexpected_error_has_arisen_try_later');
-
-        }
+        if (resultOfScan) socket.emit('resultOfScan', resultOfScan);
 
     });
 

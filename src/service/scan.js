@@ -4,14 +4,23 @@ const puppeteer = require('puppeteer');
 const uuid = require('uuid');
 const uuidV4 = uuid.v4;
 
-module.exports = scan = async (socket, urlForScan) => {
+const regexForUrlToUberEats = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)+(ubereats.com+[\/])([a-zA-Z-]*[a-zA-Z-]+[\/])([a-zA-Z-]*[a-zA-Z-]+[\/])([a-zA-Z-]*[a-zA-Z-]+[\/])([a-zA-Z-]*[a-zA-Z-]+[\/])([a-zA-Z-0-9_]*[a-zA-Z-0-9_])$/g;
 
-    console.log('the_scan_has_started');
-    socket.emit('statusOfScan', 'the_scan_has_started');
+module.exports = scan = async (socket, urlForScan) => {
 
     let browser = undefined;
 
     try {
+
+        if (urlForScan.match(regexForUrlToUberEats) === null) {
+
+            socket.emit('errorInScan', 'url_invalid');
+            return false;
+
+        }
+
+        console.log('the_scan_has_started');
+        socket.emit('statusOfScan', 'the_scan_has_started');
 
         browser = await puppeteer.launch({
             ignoreHTTPSErrors: true,
@@ -173,7 +182,7 @@ module.exports = scan = async (socket, urlForScan) => {
         console.log('the_scan_has_finished');
         socket.emit('statusOfScan', 'the_scan_has_finished');
 
-        console.log(items);
+        // console.log(items);
 
         await browser.close();
 
