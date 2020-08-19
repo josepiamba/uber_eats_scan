@@ -4,7 +4,7 @@ const puppeteer = require('puppeteer');
 const uuid = require('uuid');
 const uuidV4 = uuid.v4;
 
-const regexForUrlToUberEats = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)+(ubereats.com+[\/])([a-zA-Z-]*[a-zA-Z-]+[\/])([a-zA-Z-]*[a-zA-Z-]+[\/])([a-zA-Z-]*[a-zA-Z-]+[\/])([a-zA-Z-]*[a-zA-Z-]+[\/])([a-zA-Z-0-9_]*[a-zA-Z-0-9_])$/g;
+const regexForUrlToUberEats = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)+(ubereats.com+[\/])([a-zA-Z-]*[a-zA-Z-]+[\/])([a-zA-Z-]*[a-zA-Z-]+[\/])([a-zA-Z-]*[a-zA-Z-]+[\/])([a-zA-Z-]*[a-zA-Z0-9-]+[\/])([a-zA-Z-0-9_]*[a-zA-Z-0-9_])$/g;
 
 module.exports = scan = async (socket, urlForScan) => {
 
