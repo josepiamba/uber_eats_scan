@@ -2,7 +2,6 @@ const fs = require('fs');
 const converter = require('json-2-csv');
 const puppeteer = require('puppeteer');
 const uuid = require('uuid');
-const { isNumber } = require('util');
 const uuidV4 = uuid.v4;
 
 async function scraping() {
@@ -11,7 +10,7 @@ async function scraping() {
 
     let browser = undefined;
 
-    let url = 'https://www.ubereatsa.com/cr-en/san-jose/food-delivery/delimart-guachipelin/bbLG4X08TfCBQtvis-zOWw';
+    let url = 'https://www.ubereats.com/cr-en/san-jose/food-delivery/delimart-guachipelin/bbLG4X08TfCBQtvis-zOWw';
 
     try {
 
@@ -31,6 +30,17 @@ async function scraping() {
             waitUntil: 'domcontentloaded',
             timeout: 0,
         });
+
+        let checkValidateDOMForScan = await page.evaluate(() => {
+            return document.querySelectorAll('main ul').length;
+        });
+
+        if (checkValidateDOMForScan <= 0) {
+
+            console.log('bad url');
+            return;
+
+        }
 
         console.log('d');
 

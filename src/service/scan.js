@@ -14,6 +14,7 @@ module.exports = scan = async (socket, urlForScan) => {
 
         if (urlForScan.match(regexForUrlToUberEats) === null) {
 
+            console.log('url_invalid');
             socket.emit('errorInScan', 'url_invalid');
             return false;
 
@@ -40,6 +41,18 @@ module.exports = scan = async (socket, urlForScan) => {
             waitUntil: 'domcontentloaded',
             timeout: 0,
         });
+
+        let checkValidateDOMForScan = await page.evaluate(() => {
+            return document.querySelectorAll('main ul').length;
+        });
+
+        if (checkValidateDOMForScan <= 0) {
+
+            console.log('url_invalid');
+            socket.emit('errorInScan', 'url_invalid');
+            return false;
+
+        }
 
         console.log('the_scan_has_reached_the_destination_url');
         socket.emit('statusOfScan', 'the_scan_has_reached_the_destination_url');
