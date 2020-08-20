@@ -3,6 +3,7 @@ const converter = require('json-2-csv');
 const puppeteer = require('puppeteer');
 const uuid = require('uuid');
 const uuidV4 = uuid.v4;
+const i18n = require('./../i18n/index');
 
 const regexForUrlToUberEats = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)+(ubereats.com+[\/])([a-zA-Z-]*[a-zA-Z-]+[\/])([a-zA-Z-]*[a-zA-Z-]+[\/])([a-zA-Z-]*[a-zA-Z-]+[\/])([a-zA-Z-]*[a-zA-Z0-9-]+[\/])([a-zA-Z-0-9_]*[a-zA-Z-0-9_])$/g;
 
@@ -57,7 +58,7 @@ module.exports = scan = async (socket, urlForScan) => {
         console.log('the_scan_has_reached_the_destination_url');
         socket.emit('statusOfScan', 'the_scan_has_reached_the_destination_url');
 
-        await page.evaluate(async () => {
+        let lang = await page.evaluate(async () => {
 
             await new Promise((resolve, reject) => {
 
@@ -81,12 +82,20 @@ module.exports = scan = async (socket, urlForScan) => {
 
             });
 
+            let lang = document.querySelector('html').lang;
+
+            if (lang.includes('es')) return 'es'; 
+
+            return 'en';
+
         });
 
         console.log('the_scan_has_recovered_all_the_elements');
         socket.emit('statusOfScan', 'the_scan_has_recovered_all_the_elements');
 
-        var items = await page.evaluate(() => {
+        let translations = i18n[lang];
+
+        let items = await page.evaluate((translations) => {
 
             let shop = document.querySelector('h1').innerText.trim();
 
@@ -95,9 +104,7 @@ module.exports = scan = async (socket, urlForScan) => {
 
             let dataOfItems = [];
 
-            let categories = document.querySelectorAll('main > div:nth-child(3) > ul');
-
-            categories = categories[0].children;
+            let categories = document.querySelectorAll('main > div:nth-child(3) > ul:last-child > li');
 
             let absolutePosition = 0;
 
@@ -111,91 +118,44 @@ module.exports = scan = async (socket, urlForScan) => {
                     
                     absolutePosition++;
 
-                    if (typeof cards[j] == 'object') {
+                    let content = cards[j].querySelector('div > div > div > div');
 
-                        let content = cards[j].querySelector('div > div >div > div > div');
+                    let product = content.querySelector('h4').innerText.trim();
 
-                        let image = null;
+                    let containerStatusAndPrice = content.lastElementChild;
 
-                        let currency = null;
+                    let status = (containerStatusAndPrice.childElementCount > 1) ? containerStatusAndPrice.firstElementChild.innerText.trim() : translations['available'];
 
-                        if (cards[j].querySelector('div > img') != null) image = cards[j].querySelector('div > img').src;
+                    let priceAndCurrency = containerStatusAndPrice.lastElementChild.innerText.trim();
 
-                        if (content.childElementCount > 1) {
+                    let price = priceAndCurrency.match(/([0-9., \s])*/g).reduce((acummulator, currentValue) => acummulator + currentValue);
 
-                            let price = cards[j].querySelector('div > div >div > div > div > div:nth-child(3)').innerText.trim();
+                    let currency = priceAndCurrency.split(price).reduce((acummulator, currentValue) => acummulator + currentValue).trim();
 
-                            if (price.match(String.fromCharCode(160))) {
+                    price = parseFloat(price.trim().replace(',', ''));
 
-                                componentOfPrice = price.split(String.fromCharCode(160));
-
-                                for (let k = 0; k < componentOfPrice.length; k++) {
-
-                                    if (isNaN(parseInt(componentOfPrice[k]))) currency = componentOfPrice[k];
-                                    else price = parseInt(componentOfPrice[k].replace(',', ''));
-
-                                }
-
-                            }
-
-                            dataOfItems.push({
-                                shop,
-                                product: cards[j].querySelector('h4').innerText.trim(),
-                                status: cards[j].querySelector('div > div >div > div > div > div:nth-child(1)').innerText.trim(),
-                                price,
-                                currency,
-                                category,
-                                position: j + 1,
-                                absolutePosition,
-                                date,
-                                image,
-                            });
-
-                        } else {
-
-                            let price = cards[j].querySelector('div > div >div > div > div > div:nth-child(1)').innerText.trim();
-
-                            if (price.match(String.fromCharCode(160))) {
-                                componentOfPrice = price.split(String.fromCharCode(160));
-
-                                for (let k = 0; k < componentOfPrice.length; k++) {
-
-                                    if (isNaN(parseInt(componentOfPrice[k]))) currency = componentOfPrice[k];
-                                    else price = parseInt(componentOfPrice[k].replace(',', ''));
-
-                                }
-
-                            }
-
-                            dataOfItems.push({
-                                shop,
-                                product: cards[j].querySelector('h4').innerText.trim(),
-                                status: 'Avalaible',
-                                price,
-                                currency,
-                                category,
-                                position: j + 1,
-                                absolutePosition,
-                                date,
-                                image,
-                            });
-
-                        }
-
-                    }
+                    dataOfItems.push({
+                        shop,
+                        product,
+                        status,
+                        price,
+                        currency,
+                        category,
+                        position: j + 1,
+                        absolutePosition,
+                        date
+                    });
 
                 }
 
             }
 
             return dataOfItems;
-            
-        });
+
+        }, translations);
 
         console.log('the_scan_has_finished');
         socket.emit('statusOfScan', 'the_scan_has_finished');
-
-        // console.log(items);
 
         await browser.close();
 
@@ -204,17 +164,18 @@ module.exports = scan = async (socket, urlForScan) => {
                 field: ';',
                 array: '|',
                 eol: '\n',
-            },
-            excelBOM: true,
+            }
         });
 
         let scanId = uuidV4();
 
-        fs.writeFileSync(`${process.cwd()}/public/scans/UberEatsScan-${scanId}.csv`, csv);
+        fs.writeFileSync(`${process.cwd()}/public/scans/dataeats-${scanId}.csv`, csv);
 
         return `${process.env.URL}scans/download/${scanId}`;
 
     } catch (e) {
+
+        console.log(e);
 
         socket.emit('errorInScan', e);
         return false;

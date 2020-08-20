@@ -13,13 +13,13 @@ router.get('/scans/download/:scanId', (req, res) => {
 
     let { scanId } = req.params;
 
-    if (fs.existsSync(`${process.cwd()}/public/scans/UberEatsScan-${scanId}.csv`)) {
+    if (fs.existsSync(`${process.cwd()}/public/scans/dataeats-${scanId}.csv`)) {
 
-        let scan = fs.readFileSync(`${process.cwd()}/public/scans/UberEatsScan-${scanId}.csv`);
+        let scan = fs.readFileSync(`${process.cwd()}/public/scans/dataeats-${scanId}.csv`);
         
         res.setHeader('Content-Type', 'application/octet-stream');
         
-        res.setHeader('Content-disposition', `attachment;filename=UberEatsScan-${scanId}.csv`);
+        res.setHeader('Content-disposition', `attachment;filename=dataeats-${scanId}.csv`);
         
         res.write(scan);
 
