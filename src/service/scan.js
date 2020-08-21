@@ -132,7 +132,7 @@ module.exports = scan = async (socket, urlForScan) => {
 
                     let currency = priceAndCurrency.split(price).reduce((acummulator, currentValue) => acummulator + currentValue).trim();
 
-                    price = parseFloat(price.trim().replace(',', ''));
+                    price = parseFloat(price.trim().replace('.', '').replace(String.fromCharCode(160), ''));
 
                     dataOfItems.push({
                         shop,
@@ -164,7 +164,8 @@ module.exports = scan = async (socket, urlForScan) => {
                 field: ';',
                 array: '|',
                 eol: '\n',
-            }
+            },
+            excelBOM: true
         });
 
         let scanId = uuidV4();

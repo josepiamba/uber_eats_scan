@@ -14,7 +14,10 @@ async function scraping() {
 
     // let url = 'https://www.ubereats.com/cr-en/san-jose/food-delivery/delimart-guachipelin/bbLG4X08TfCBQtvis-zOWw';
 
-    let url = 'https://www.ubereats.com/cr/san-jose/food-delivery/mcdonalds-escazu/umtutqU8SrK9XfPX_3zJpg';
+    // let url = 'https://www.ubereats.com/cr/san-jose/food-delivery/mcdonalds-escazu/umtutqU8SrK9XfPX_3zJpg';
+
+    let url = 'https://www.ubereats.com/cr/san-jose/food-delivery/host-pavas/n3JzJc9JTLam6vVj-44pIA';
+
 
     try {
 
@@ -121,7 +124,7 @@ async function scraping() {
 
                     let currency = priceAndCurrency.split(price).reduce((acummulator, currentValue) => acummulator + currentValue).trim();
 
-                    price = parseFloat(price.trim().replace(',', ''));
+                    price = parseFloat(price.trim().replace('.', '').replace(String.fromCharCode(160), ''));
 
                     dataOfItems.push({
                         shop,
@@ -152,7 +155,8 @@ async function scraping() {
                 field: ';',
                 array: '|',
                 eol: '\n',
-            }
+            },
+            excelBOM: true
         });
 
         // let directoryOfResultJSON = `${process.cwd()}/public/scans/${uuidV4()}.json`;
