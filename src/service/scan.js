@@ -104,7 +104,7 @@ module.exports = scan = async (socket, urlForScan) => {
 
             let dataOfItems = [];
 
-            let categories = document.querySelectorAll('main > div:nth-child(3) > ul:last-child > li');
+            let categories = document.querySelectorAll('main > div:nth-child(3) > ul > li');
 
             let absolutePosition = 0;
 
