@@ -16,9 +16,9 @@ async function scraping() {
 
     // let url = 'https://www.ubereats.com/cr/san-jose/food-delivery/mcdonalds-escazu/umtutqU8SrK9XfPX_3zJpg';
 
-    // let url = 'https://www.ubereats.com/cr/san-jose/food-delivery/host-pavas/n3JzJc9JTLam6vVj-44pIA';
+    let url = 'https://www.ubereats.com/cr/san-jose/food-delivery/host-pavas/n3JzJc9JTLam6vVj-44pIA';
 
-    let url = 'https://www.ubereats.com/cr/san-jose/food-delivery/ampm-pavas-aya/WdthNWGgSeeoh0ZBDHovHA';
+    // let url = 'https://www.ubereats.com/cr/san-jose/food-delivery/ampm-pavas-aya/WdthNWGgSeeoh0ZBDHovHA';
 
 
     try {
@@ -41,16 +41,43 @@ async function scraping() {
         });
 
         let checkValidateDOMForScan = await page.evaluate(() => {
-            return document.querySelectorAll('main ul').length;
+            return document.querySelectorAll('main ul').length > 0;
         });
 
-        if (checkValidateDOMForScan <= 0) {
+        if (!checkValidateDOMForScan) {
 
             console.log('bad url');
             return;
 
         }
 
+        let classOfContainerCategories = await page.evaluate(() => {
+
+            let classOfContainerCategories = undefined;
+
+            let possibleContainerCategories = document.querySelectorAll('main > div:last-child > ul');
+
+            console.log(possibleContainerCategories);
+
+            possibleContainerCategories = Array.from(possibleContainerCategories);
+
+            console.log(possibleContainerCategories);
+
+            possibleContainerCategories.forEach((ul) => {
+
+                if (ul.clientHeight > 0 && ul.clientWidth > 0) classOfContainerCategories = ul.classList;
+
+            })
+
+            return classOfContainerCategories === undefined ? false : Array.from(classOfContainerCategories).join('.');
+
+        })
+
+        if (!classOfContainerCategories) {
+
+            console.log('bad');
+
+        }
         console.log('d');
 
         let lang = await page.evaluate(async () => {
@@ -89,7 +116,7 @@ async function scraping() {
 
         let translations = i18n[lang];
 
-        let items = await page.evaluate((translations) => {
+        let items = await page.evaluate((translations, classOfContainerCategories) => {
 
             let shop = document.querySelector('h1').innerText.trim();
 
@@ -98,7 +125,7 @@ async function scraping() {
 
             let dataOfItems = [];
 
-            let categories = document.querySelectorAll('main > div:nth-child(3) > ul > li');
+            let categories = document.querySelectorAll(`main > div:last-child > ul.${classOfContainerCategories} > li`);
 
             let absolutePosition = 0;
 
@@ -114,7 +141,7 @@ async function scraping() {
 
                     let content = cards[j].querySelector('div > div > div > div');
 
-                    let product = content.querySelector('h4').innerText.trim();
+                    let product = content.querySelector('h4').innerText;
 
                     let containerStatusAndPrice = content.lastElementChild;
 
@@ -146,7 +173,7 @@ async function scraping() {
 
             return dataOfItems;
 
-        }, translations);
+        }, translations, classOfContainerCategories);
 
         await browser.close();
 

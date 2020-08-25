@@ -55,6 +55,36 @@ module.exports = scan = async (socket, urlForScan) => {
 
         }
 
+        let classOfContainerCategories = await page.evaluate(() => {
+
+            let classOfContainerCategories = undefined;
+
+            let possibleContainerCategories = document.querySelectorAll('main > div:last-child > ul');
+
+            console.log(possibleContainerCategories);
+
+            possibleContainerCategories = Array.from(possibleContainerCategories);
+
+            console.log(possibleContainerCategories);
+
+            possibleContainerCategories.forEach((ul) => {
+
+                if (ul.clientHeight > 0 && ul.clientWidth > 0) classOfContainerCategories = ul.classList;
+
+            })
+
+            return classOfContainerCategories === undefined ? false : Array.from(classOfContainerCategories).join('.');
+
+        })
+
+        if (!classOfContainerCategories) {
+
+            console.log('url_invalid');
+            socket.emit('errorInScan', 'url_invalid');
+            return false;
+
+        }
+
         console.log('the_scan_has_reached_the_destination_url');
         socket.emit('statusOfScan', 'the_scan_has_reached_the_destination_url');
 
@@ -95,7 +125,7 @@ module.exports = scan = async (socket, urlForScan) => {
 
         let translations = i18n[lang];
 
-        let items = await page.evaluate((translations) => {
+        let items = await page.evaluate((translations, classOfContainerCategories) => {
 
             let shop = document.querySelector('h1').innerText.trim();
 
@@ -104,7 +134,7 @@ module.exports = scan = async (socket, urlForScan) => {
 
             let dataOfItems = [];
 
-            let categories = document.querySelectorAll('main > div:nth-child(3) > ul > li');
+            let categories = document.querySelectorAll(`main > div:last-child > ul.${classOfContainerCategories} > li`);
 
             let absolutePosition = 0;
 
@@ -134,6 +164,8 @@ module.exports = scan = async (socket, urlForScan) => {
 
                     price = parseFloat(price.trim().replace('.', '').replace(String.fromCharCode(160), ''));
 
+                    // price = price.trim().replace(',', '').replace(String.fromCharCode(160), '').split('.').shift();
+
                     dataOfItems.push({
                         shop,
                         product,
@@ -152,7 +184,7 @@ module.exports = scan = async (socket, urlForScan) => {
 
             return dataOfItems;
 
-        }, translations);
+        }, translations, classOfContainerCategories);
 
         console.log('the_scan_has_finished');
         socket.emit('statusOfScan', 'the_scan_has_finished');
