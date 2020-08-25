@@ -150,7 +150,7 @@ module.exports = scan = async (socket, urlForScan) => {
 
                     let content = cards[j].querySelector('div > div > div > div');
 
-                    let product = content.querySelector('h4').innerText.trim();
+                    let product = content.querySelector('h4').textContent;
 
                     let containerStatusAndPrice = content.lastElementChild;
 
