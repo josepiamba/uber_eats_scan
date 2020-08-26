@@ -26,12 +26,13 @@ async function scraping() {
         browser = await puppeteer.launch({
             ignoreHTTPSErrors: true,
             headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-extensions', '--lang=es'],
+            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-extensions'],
         });
 
         console.log('b');
 
         let page = await browser.newPage();
+        await page.setViewport({ width: 1920, height: 1280});
 
         console.log('c');
 
@@ -57,11 +58,7 @@ async function scraping() {
 
             let possibleContainerCategories = document.querySelectorAll('main > div:last-child > ul');
 
-            console.log(possibleContainerCategories);
-
             possibleContainerCategories = Array.from(possibleContainerCategories);
-
-            console.log(possibleContainerCategories);
 
             possibleContainerCategories.forEach((ul) => {
 
@@ -116,7 +113,7 @@ async function scraping() {
 
         let translations = i18n[lang];
 
-        let items = await page.evaluate((translations, classOfContainerCategories) => {
+        let items = await page.evaluate(async (translations, classOfContainerCategories) => {
 
             let shop = document.querySelector('h1').innerText.trim();
 
@@ -131,7 +128,7 @@ async function scraping() {
 
             for (let i = 0; i < categories.length; i++) {
 
-                let category = categories[i].querySelector('h2').innerText.trim();
+                let category = categories[i].querySelector('h2').innerText.toString();
 
                 let cards = categories[i].querySelectorAll('ul > li');
 
@@ -153,7 +150,9 @@ async function scraping() {
 
                     let currency = priceAndCurrency.split(price).reduce((acummulator, currentValue) => acummulator + currentValue).trim();
 
-                    price = parseFloat(price.trim().replace('.', '').replace(String.fromCharCode(160), ''));
+                    // price = parseFloat(price.trim().replace(',', '').replace(String.fromCharCode(160), ''));
+
+                    price = price.trim().replace(String.fromCharCode(160), '').split(',').shift();
 
                     dataOfItems.push({
                         shop,
