@@ -120,6 +120,17 @@ module.exports = scan = async (socket, urlForScan) => {
         console.log('the_scan_has_recovered_all_the_elements');
         socket.emit('statusOfScan', 'the_scan_has_recovered_all_the_elements');
 
+        await page.evaluate(async () => {
+            const selectors = Array.from(document.querySelectorAll('img'));
+            await Promise.all(selectors.map(img => {
+                if (img.complete) return;
+                return new Promise((resolve, reject) => {
+                    img.addEventListener('load', resolve);
+                    img.addEventListener('error', reject);
+                });
+            }));
+        })
+
         let translations = i18n[lang];
 
         let items = await page.evaluate((translations, classOfContainerCategories) => {
@@ -163,6 +174,8 @@ module.exports = scan = async (socket, urlForScan) => {
 
                     price = price.trim().replace(String.fromCharCode(160), '').split(',').shift();
 
+                    let image = cards[j].querySelector('div > img') ? cards[j].querySelector('div > img').src : undefined;
+
                     dataOfItems.push({
                         shop,
                         product,
@@ -172,7 +185,8 @@ module.exports = scan = async (socket, urlForScan) => {
                         category,
                         position: j + 1,
                         absolutePosition,
-                        date
+                        date,
+                        image
                     });
 
                 }

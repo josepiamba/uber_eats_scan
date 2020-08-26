@@ -111,6 +111,17 @@ async function scraping() {
 
         console.log('e');
 
+        await page.evaluate(async () => {
+            const selectors = Array.from(document.querySelectorAll('img'));
+            await Promise.all(selectors.map(img => {
+                if (img.complete) return;
+                return new Promise((resolve, reject) => {
+                    img.addEventListener('load', resolve);
+                    img.addEventListener('error', reject);
+                });
+            }));
+        })
+
         let translations = i18n[lang];
 
         let items = await page.evaluate(async (translations, classOfContainerCategories) => {
@@ -154,6 +165,8 @@ async function scraping() {
 
                     price = price.trim().replace(String.fromCharCode(160), '').split(',').shift();
 
+                    let image = cards[j].querySelector('div > img') ? cards[j].querySelector('div > img').src : undefined;
+
                     dataOfItems.push({
                         shop,
                         product,
@@ -163,7 +176,8 @@ async function scraping() {
                         category,
                         position: j + 1,
                         absolutePosition,
-                        date
+                        date,
+                        image
                     });
 
                 }
