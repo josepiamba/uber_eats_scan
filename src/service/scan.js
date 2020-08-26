@@ -37,6 +37,7 @@ module.exports = scan = async (socket, urlForScan) => {
         socket.emit('statusOfScan', 'the_browser_has_been_launched');
 
         let page = await browser.newPage();
+        await page.setViewport({ width: 1920, height: 1280 });
 
         await page.goto(urlForScan, {
             waitUntil: 'domcontentloaded',
@@ -61,11 +62,7 @@ module.exports = scan = async (socket, urlForScan) => {
 
             let possibleContainerCategories = document.querySelectorAll('main > div:last-child > ul');
 
-            console.log(possibleContainerCategories);
-
             possibleContainerCategories = Array.from(possibleContainerCategories);
-
-            console.log(possibleContainerCategories);
 
             possibleContainerCategories.forEach((ul) => {
 
@@ -127,7 +124,7 @@ module.exports = scan = async (socket, urlForScan) => {
 
         let items = await page.evaluate((translations, classOfContainerCategories) => {
 
-            let shop = document.querySelector('h1').innerText.trim();
+            let shop = document.querySelector('h1').innerText.toString();
 
             let date = new Date();
             date = date.toString();
@@ -140,7 +137,7 @@ module.exports = scan = async (socket, urlForScan) => {
 
             for (let i = 0; i < categories.length; i++) {
 
-                let category = categories[i].querySelector('h2').innerText.trim();
+                let category = categories[i].querySelector('h2').innerText.toString();
 
                 let cards = categories[i].querySelectorAll('ul > li');
 
@@ -150,7 +147,7 @@ module.exports = scan = async (socket, urlForScan) => {
 
                     let content = cards[j].querySelector('div > div > div > div');
 
-                    let product = content.querySelector('h4').textContent;
+                    let product = content.querySelector('h4').innerText.toString();
 
                     let containerStatusAndPrice = content.lastElementChild;
 
@@ -164,7 +161,7 @@ module.exports = scan = async (socket, urlForScan) => {
 
                     // price = parseFloat(price.trim().replace(',', '').replace(String.fromCharCode(160), ''));
 
-                    price = price.trim().replace(',', '').replace(String.fromCharCode(160), '').split('.').shift();
+                    price = price.trim().replace(String.fromCharCode(160), '').split(',').shift();
 
                     dataOfItems.push({
                         shop,
