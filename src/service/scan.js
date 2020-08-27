@@ -171,6 +171,7 @@ module.exports = scan = async (socket, urlForScan) => {
                     let currency = priceAndCurrency.split(price).reduce((acummulator, currentValue) => acummulator + currentValue).trim();
 
                     // price = parseFloat(price.trim().replace(',', '').replace(String.fromCharCode(160), ''));
+                    if (price.includes('.')) price = price.replace(',', '').replace('.', ',');
 
                     price = price.trim().replace(String.fromCharCode(160), '').split(',').shift();
 

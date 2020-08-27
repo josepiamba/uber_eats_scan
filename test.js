@@ -16,9 +16,9 @@ async function scraping() {
 
     // let url = 'https://www.ubereats.com/cr/san-jose/food-delivery/mcdonalds-escazu/umtutqU8SrK9XfPX_3zJpg';
 
-    let url = 'https://www.ubereats.com/cr/san-jose/food-delivery/host-pavas/n3JzJc9JTLam6vVj-44pIA';
+    // let url = 'https://www.ubereats.com/cr/san-jose/food-delivery/host-pavas/n3JzJc9JTLam6vVj-44pIA';
 
-    // let url = 'https://www.ubereats.com/cr/san-jose/food-delivery/ampm-pavas-aya/WdthNWGgSeeoh0ZBDHovHA';
+    let url = 'https://www.ubereats.com/cr/san-jose/food-delivery/ampm-pavas-aya/WdthNWGgSeeoh0ZBDHovHA';
 
 
     try {
@@ -162,6 +162,8 @@ async function scraping() {
                     let currency = priceAndCurrency.split(price).reduce((acummulator, currentValue) => acummulator + currentValue).trim();
 
                     // price = parseFloat(price.trim().replace(',', '').replace(String.fromCharCode(160), ''));
+
+                    if (price.includes('.')) price = price.replace(',', '').replace('.', ',');
 
                     price = price.trim().replace(String.fromCharCode(160), '').split(',').shift();
 
