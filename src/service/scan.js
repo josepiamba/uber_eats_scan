@@ -160,6 +160,12 @@ module.exports = scan = async (socket, urlForScan) => {
 
                     let product = content.querySelector('h4').innerText.toString();
 
+                    let divs = content.querySelectorAll('div');
+
+                    let description = undefined;
+
+                    if (divs.length > 3) description = divs[2].innerText.toString();
+
                     let containerStatusAndPrice = content.lastElementChild;
 
                     let status = (containerStatusAndPrice.childElementCount > 1) ? containerStatusAndPrice.firstElementChild.innerText.trim() : translations['available'];
@@ -180,6 +186,7 @@ module.exports = scan = async (socket, urlForScan) => {
                     dataOfItems.push({
                         shop,
                         product,
+                        description,
                         status,
                         price,
                         currency,
