@@ -2,7 +2,6 @@ const express = require('express');
 const socket = require('socket.io');
 const dotenv = require('dotenv');
 const cors = require('cors');
-const morgan = require('morgan');
 
 const environment = dotenv.config();
 
@@ -15,8 +14,6 @@ if (environment.error) process.exit();
 const app = express();
 
 app.use(cors());
-
-if (process.env.ENVIOREMENT == 'developing') app.use(morgan('dev'));
 
 app.use(mainRouter);
 

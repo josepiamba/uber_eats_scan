@@ -16,8 +16,6 @@
     "express": "^4.17.1",
     "http": "0.0.1-security",
     "json-2-csv": "^3.7.6",
-    "morgan": "^1.10.0",
-    "nodemon": "^2.0.4",
     "puppeteer": "^5.2.1",
     "socket.io": "^2.3.0",
     "uuid": "^8.3.0"
