@@ -12,13 +12,13 @@ async function scraping() {
 
     let browser = undefined;
 
-    // let url = 'https://www.ubereats.com/cr-en/san-jose/food-delivery/delimart-guachipelin/bbLG4X08TfCBQtvis-zOWw';
+    let url = 'https://www.ubereats.com/cr-en/san-jose/food-delivery/delimart-guachipelin/bbLG4X08TfCBQtvis-zOWw';
 
     // let url = 'https://www.ubereats.com/cr/san-jose/food-delivery/mcdonalds-escazu/umtutqU8SrK9XfPX_3zJpg';
 
     // let url = 'https://www.ubereats.com/cr/san-jose/food-delivery/host-pavas/n3JzJc9JTLam6vVj-44pIA';
 
-    let url = 'https://www.ubereats.com/cr/san-jose/food-delivery/ampm-pavas-aya/WdthNWGgSeeoh0ZBDHovHA';
+    // let url = 'https://www.ubereats.com/cr/san-jose/food-delivery/ampm-pavas-aya/WdthNWGgSeeoh0ZBDHovHA';
 
 
     try {
@@ -82,7 +82,7 @@ async function scraping() {
             await new Promise((resolve, reject) => {
 
                 let totalHeight = 0;
-                let distance = 750;
+                let distance = 1000;
 
                 var timer = setInterval(async () => {
 
@@ -97,7 +97,7 @@ async function scraping() {
 
                     }
 
-                }, 750);
+                }, 500);
 
             });
 
@@ -151,6 +151,12 @@ async function scraping() {
 
                     let product = content.querySelector('h4').innerText;
 
+                    let divs = content.querySelectorAll('div');
+
+                    let description = undefined;
+
+                    if (divs.length > 3) description = divs[2].innerText.toString();
+
                     let containerStatusAndPrice = content.lastElementChild;
 
                     let status = (containerStatusAndPrice.childElementCount > 1) ? containerStatusAndPrice.firstElementChild.innerText.trim() : translations['available'];
@@ -172,6 +178,7 @@ async function scraping() {
                     dataOfItems.push({
                         shop,
                         product,
+                        description,
                         status,
                         price,
                         currency,
