@@ -11,24 +11,34 @@ router.get('/', (req, res) => {
 
 router.get('/scans/download/:scanId', (req, res) => {
 
-    let { scanId } = req.params;
+    try {
 
-    if (fs.existsSync(`${process.cwd()}/public/scans/dataeats-${scanId}.csv`)) {
+        let { scanId } = req.params;
 
-        let scan = fs.readFileSync(`${process.cwd()}/public/scans/dataeats-${scanId}.csv`);
+        if (fs.existsSync(`${process.cwd()}/public/scans/dataeats-${scanId}.csv`)) {
+
+            let scan = fs.readFileSync(`${process.cwd()}/public/scans/dataeats-${scanId}.csv`);
+
+            fs.unlinkSync(`${process.cwd()}/public/scans/dataeats-${scanId}.csv`);
+            
+            res.setHeader('Content-Type', 'application/octet-stream');
+            
+            res.setHeader('Content-disposition', `attachment;filename=dataeats-${scanId}.csv`);
+            
+            res.write(scan);
+
+            res.end();
+
+        } else {
+
+            res.json('the_requested_scan_was_not_found').status(404);
+
+        }
         
-        res.setHeader('Content-Type', 'application/octet-stream');
-        
-        res.setHeader('Content-disposition', `attachment;filename=dataeats-${scanId}.csv`);
-        
-        res.write(scan);
-
-        res.end();
-
-    } else {
+    } catch (e) {
 
         res.json('the_requested_scan_was_not_found').status(404);
-
+        
     }
 
 });
